@@ -810,7 +810,22 @@
     const idx = remaining[Math.floor(Math.random() * remaining.length)];
     set.add(idx);
     hintReveals.set(word, set);
+
+    let justCompletedAll = false;
+    if(set.size === word.length && !foundHidden.has(word)){
+      foundHidden.add(word);
+      renderProgress();
+      if(foundHidden.size === hiddenWords.length){
+        justCompletedAll = true;
+      }
+    }
+
     renderHiddenWords();
+
+    if(justCompletedAll){
+      setMessage('All words revealed with hints \u2014 nice work!', 'good');
+      setTimeout(winGame, 350);
+    }
   }
 
   function renderBank(){
