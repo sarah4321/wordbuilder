@@ -1,0 +1,1005 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+<title>Word Builder</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Nunito:wght@500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --cream:#FBF7FF;
+    --mint:#E4FBF1;
+    --ink:#2E2A45;
+    --pink:#FF6FA0;
+    --pink-dark:#E84E86;
+    --turq:#20C9C0;
+    --turq-dark:#0FA79F;
+    --yellow:#FFC53D;
+    --yellow-dark:#F0A800;
+    --purple:#9B7FE8;
+    --purple-dark:#7E5FDB;
+    --coral:#FF8A66;
+    --white:#FFFFFF;
+    --box:#F1EEFA;
+    --gray:#9AA0AE;
+    --gray-bg:#EDEFF3;
+  }
+
+  *{ box-sizing: border-box; }
+
+  html,body{
+    margin:0;
+    padding:0;
+    min-height:100vh;
+    overflow-x:hidden;
+    font-family:'Nunito', sans-serif;
+    color:var(--ink);
+    background:
+      radial-gradient(circle at 15% 10%, rgba(255,111,160,0.18), transparent 40%),
+      radial-gradient(circle at 85% 15%, rgba(32,201,192,0.18), transparent 40%),
+      radial-gradient(circle at 20% 90%, rgba(255,197,61,0.18), transparent 40%),
+      radial-gradient(circle at 90% 85%, rgba(155,127,232,0.20), transparent 40%),
+      linear-gradient(180deg, var(--cream), var(--mint));
+    background-attachment: fixed;
+  }
+
+  .wrap{
+    max-width: 520px;
+    margin: 0 auto;
+    padding: 24px 14px 60px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    min-height:100vh;
+  }
+
+  .title{
+    font-family:'Baloo 2', sans-serif;
+    font-weight:800;
+    font-size: 2.1rem;
+    letter-spacing: 0.5px;
+    color: var(--purple-dark);
+    text-align:center;
+    margin: 4px 0 2px;
+  }
+  .title span:nth-child(1){ color: var(--pink-dark); }
+  .title span:nth-child(2){ color: var(--turq-dark); }
+  .title span:nth-child(3){ color: var(--yellow-dark); }
+  .title span:nth-child(4){ color: var(--purple-dark); }
+  .title span:nth-child(5){ color: var(--coral); }
+
+  .subtitle{
+    font-size: 1rem;
+    font-weight:600;
+    color: #6b6484;
+    text-align:center;
+    margin-bottom: 22px;
+  }
+
+  .card{
+    width:100%;
+    background: rgba(255,255,255,0.72);
+    border-radius: 32px;
+    padding: 24px 16px 22px;
+    box-shadow: 0 18px 40px -14px rgba(126, 95, 219, 0.35), 0 4px 12px rgba(126,95,219,0.12);
+    backdrop-filter: blur(6px);
+    border: 2px solid rgba(255,255,255,0.9);
+  }
+
+  .main-word{
+    display:grid;
+    grid-template-columns: repeat(5, minmax(0, 66px));
+    gap: 8px;
+    justify-content:center;
+    margin: 0 auto 22px;
+  }
+
+  .letter-btn{
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    min-width: 0;
+    border-radius: 50%;
+    border: none;
+    font-family:'Baloo 2', sans-serif;
+    font-weight:700;
+    font-size: clamp(1.05rem, 6vw, 1.6rem);
+    color: white;
+    cursor: pointer;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    box-shadow: 0 6px 0 rgba(0,0,0,0.12), 0 8px 16px rgba(0,0,0,0.14);
+    transition: transform 0.08s ease;
+    user-select:none;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .letter-btn:active{ transform: translateY(4px); box-shadow: 0 2px 0 rgba(0,0,0,0.12), 0 4px 10px rgba(0,0,0,0.14); }
+
+  .letter-btn.c0{ background: linear-gradient(145deg, var(--pink), var(--pink-dark)); }
+  .letter-btn.c1{ background: linear-gradient(145deg, var(--turq), var(--turq-dark)); }
+  .letter-btn.c2{ background: linear-gradient(145deg, var(--yellow), var(--yellow-dark)); }
+  .letter-btn.c3{ background: linear-gradient(145deg, var(--purple), var(--purple-dark)); }
+  .letter-btn.c4{ background: linear-gradient(145deg, var(--coral), #E8663F); }
+
+  .letter-btn.tapped{ animation: popTile 0.28s ease; }
+  @keyframes popTile{
+    0%{ transform: scale(1); }
+    40%{ transform: scale(1.18); }
+    100%{ transform: scale(1); }
+  }
+
+  .guess-row{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+
+  .guess-strip{
+    flex: 1;
+    min-width: 0;
+    min-height: 58px;
+    background: var(--box);
+    border-radius: 18px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap: 6px;
+    padding: 6px 8px;
+    flex-wrap: wrap;
+  }
+  .guess-strip.shake{ animation: shake 0.4s ease; }
+  @keyframes shake{
+    0%,100%{ transform: translateX(0); }
+    20%{ transform: translateX(-8px); }
+    40%{ transform: translateX(8px); }
+    60%{ transform: translateX(-6px); }
+    80%{ transform: translateX(6px); }
+  }
+
+  .guess-placeholder{
+    color:#9a92b5;
+    font-weight:700;
+    font-size: 0.88rem;
+    text-align:center;
+  }
+
+  .guess-letter{
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    background: white;
+    border: none;
+    font-family:'Baloo 2', sans-serif;
+    font-weight:700;
+    font-size: 1.1rem;
+    color: var(--purple-dark);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    cursor:pointer;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.12);
+    flex-shrink:0;
+  }
+
+  .icon-btn{
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    border:none;
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    flex-shrink:0;
+    box-shadow: 0 5px 0 rgba(0,0,0,0.1), 0 6px 12px rgba(0,0,0,0.14);
+    transition: transform 0.08s ease;
+  }
+  .icon-btn:active{ transform: translateY(3px); box-shadow: 0 2px 0 rgba(0,0,0,0.1), 0 3px 8px rgba(0,0,0,0.14); }
+
+  .icon-btn.back{ background: #EDEAF6; color: var(--purple-dark); font-size: 1.25rem; font-weight:800; }
+  .icon-btn.submit{ background: linear-gradient(145deg, var(--turq), var(--turq-dark)); color:white; font-size: 1.4rem; }
+  .icon-btn.submit svg{ width: 22px; height:22px; }
+
+  .clear-row{
+    display:flex;
+    justify-content:center;
+    margin-bottom: 8px;
+  }
+  .text-btn{
+    background:none;
+    border:none;
+    color:#9a92b5;
+    font-family:'Nunito',sans-serif;
+    font-weight:700;
+    font-size: 0.85rem;
+    cursor:pointer;
+    padding: 6px 10px;
+    text-decoration: underline;
+  }
+
+  .message{
+    text-align:center;
+    min-height: 26px;
+    font-weight:800;
+    font-size: 0.95rem;
+    margin-bottom: 6px;
+    transition: opacity 0.2s ease;
+  }
+  .message.good{ color: var(--turq-dark); }
+  .message.bad{ color: var(--pink-dark); }
+  .message.info{ color: var(--purple-dark); }
+
+  .section-label{
+    font-family:'Baloo 2', sans-serif;
+    font-weight:700;
+    font-size: 1.05rem;
+    color: var(--ink);
+    text-align:center;
+    margin: 18px 0 4px;
+  }
+  .progress{
+    text-align:center;
+    font-weight:700;
+    color:#8a82a8;
+    font-size: 0.85rem;
+    margin-bottom: 14px;
+  }
+
+  .hidden-words{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap: 10px;
+  }
+  .hw-row{
+    display:flex;
+    align-items:center;
+    gap: 8px;
+  }
+  .hw-boxes{
+    display:flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    justify-content:center;
+  }
+  .hw-box{
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    background: white;
+    box-shadow: inset 0 0 0 2px #E7E1F5, 0 2px 4px rgba(0,0,0,0.06);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-family:'Baloo 2', sans-serif;
+    font-weight:700;
+    font-size: 1rem;
+    color: transparent;
+    flex-shrink:0;
+  }
+  .hw-box.filled{
+    color: var(--purple-dark);
+    background: linear-gradient(160deg, #ffffff, #F3EEFF);
+    box-shadow: inset 0 0 0 2px var(--purple), 0 2px 4px rgba(0,0,0,0.08);
+    animation: revealPop 0.35s ease;
+  }
+  .hw-box.hint{
+    color: #92660B;
+    background: linear-gradient(160deg, #FFF7E2, #FFEBB0);
+    box-shadow: inset 0 0 0 2px var(--yellow), 0 2px 4px rgba(0,0,0,0.08);
+    animation: revealPop 0.35s ease;
+  }
+  .hw-box.given-up{
+    color: #6B7280;
+    background: var(--gray-bg);
+    box-shadow: inset 0 0 0 2px #D5D9E0, 0 2px 4px rgba(0,0,0,0.06);
+    animation: revealPop 0.35s ease;
+  }
+  @keyframes revealPop{
+    0%{ transform: scale(0.6) rotate(-6deg); opacity:0; }
+    70%{ transform: scale(1.12) rotate(2deg); opacity:1; }
+    100%{ transform: scale(1) rotate(0); }
+  }
+
+  .hint-btn{
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    border: none;
+    background: #FFF3D0;
+    cursor: pointer;
+    font-size: 1rem;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    flex-shrink:0;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    transition: transform 0.08s ease;
+  }
+  .hint-btn:active{ transform: scale(0.9); }
+
+  .bank-wrap{ margin-top: 20px; }
+  .bank-chips{
+    display:flex;
+    flex-wrap:wrap;
+    gap: 8px;
+    justify-content:center;
+    min-height: 20px;
+  }
+  .chip{
+    background: linear-gradient(135deg, #FFE7B8, #FFD37A);
+    color: #7A5A00;
+    font-family:'Baloo 2', sans-serif;
+    font-weight:700;
+    font-size: 0.9rem;
+    padding: 6px 14px;
+    border-radius: 999px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+    animation: chipIn 0.3s ease;
+  }
+  @keyframes chipIn{
+    0%{ transform: scale(0.7); opacity:0; }
+    100%{ transform: scale(1); opacity:1; }
+  }
+  .bank-empty{ color:#b0a8cb; font-size:0.85rem; font-weight:600; text-align:center; }
+
+  .footer-row{
+    margin-top: 26px;
+    display:flex;
+    justify-content:center;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .footer-btn{
+    font-family:'Baloo 2', sans-serif;
+    font-weight:700;
+    font-size: 0.95rem;
+    padding: 10px 22px;
+    border-radius: 999px;
+    cursor:pointer;
+  }
+  .new-puzzle-btn{
+    background: white;
+    border: 2px solid var(--purple);
+    color: var(--purple-dark);
+    box-shadow: 0 4px 0 rgba(126,95,219,0.15);
+  }
+  .new-puzzle-btn:active{ transform: translateY(3px); box-shadow:none; }
+
+  .giveup-btn{
+    background: white;
+    border: 2px solid var(--gray);
+    color: #6B7280;
+    box-shadow: 0 4px 0 rgba(154,160,174,0.2);
+  }
+  .giveup-btn:active{ transform: translateY(3px); box-shadow:none; }
+  .giveup-btn[hidden]{ display:none; }
+
+  .overlay{
+    position: fixed;
+    inset: 0;
+    background: rgba(46, 42, 69, 0.35);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    opacity:0;
+    pointer-events:none;
+    transition: opacity 0.25s ease;
+    z-index: 50;
+    padding: 20px;
+  }
+  .overlay.show{ opacity:1; pointer-events:auto; }
+
+  .win-card{
+    background: white;
+    border-radius: 28px;
+    padding: 36px 28px;
+    text-align:center;
+    max-width: 360px;
+    box-shadow: 0 30px 60px rgba(0,0,0,0.25);
+    transform: scale(0.85);
+    transition: transform 0.25s ease;
+  }
+  .overlay.show .win-card{ transform: scale(1); }
+
+  .win-title{
+    font-family:'Baloo 2', sans-serif;
+    font-weight:800;
+    font-size: 1.7rem;
+    color: var(--pink-dark);
+    margin-bottom: 8px;
+  }
+  .win-sub{
+    color:#6b6484;
+    font-weight:600;
+    margin-bottom: 20px;
+  }
+  .win-btn{
+    background: linear-gradient(145deg, var(--turq), var(--turq-dark));
+    border:none;
+    color:white;
+    font-family:'Baloo 2', sans-serif;
+    font-weight:700;
+    font-size: 1rem;
+    padding: 12px 26px;
+    border-radius: 999px;
+    cursor:pointer;
+    box-shadow: 0 5px 0 rgba(15,167,159,0.4);
+  }
+  .win-btn:active{ transform: translateY(4px); box-shadow:none; }
+
+  #confetti-layer{
+    position: fixed;
+    inset:0;
+    overflow:hidden;
+    pointer-events:none;
+    z-index: 60;
+  }
+  .confetti-piece{
+    position:absolute;
+    top:-30px;
+    border-radius: 2px;
+    animation-name: fall;
+    animation-timing-function: ease-in;
+    animation-fill-mode: forwards;
+  }
+  @keyframes fall{
+    0%{ transform: translateY(0) rotate(0deg); opacity:1; }
+    100%{ transform: translateY(115vh) rotate(600deg); opacity:0.9; }
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    .letter-btn.tapped, .guess-strip.shake, .hw-box.filled, .hw-box.hint, .hw-box.given-up, .chip, .confetti-piece{
+      animation: none !important;
+    }
+  }
+
+  /* ---------- Header / help ---------- */
+  .header-row{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap: 10px;
+    position: relative;
+    width: 100%;
+  }
+  .help-btn{
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: none;
+    background: white;
+    color: var(--purple-dark);
+    font-family:'Baloo 2', sans-serif;
+    font-weight:800;
+    font-size: 1.2rem;
+    cursor:pointer;
+    box-shadow: 0 4px 0 rgba(126,95,219,0.18), 0 4px 10px rgba(0,0,0,0.08);
+    flex-shrink:0;
+  }
+  .help-btn:active{ transform: translateY(3px); box-shadow: 0 1px 0 rgba(126,95,219,0.18); }
+
+  .help-card{
+    background: white;
+    border-radius: 28px;
+    padding: 30px 26px;
+    text-align:left;
+    max-width: 380px;
+    max-height: 82vh;
+    overflow-y: auto;
+    box-shadow: 0 30px 60px rgba(0,0,0,0.25);
+    transform: scale(0.9);
+    transition: transform 0.2s ease;
+  }
+  .overlay.show .help-card{ transform: scale(1); }
+
+  .help-title{
+    font-family:'Baloo 2', sans-serif;
+    font-weight:800;
+    font-size: 1.5rem;
+    color: var(--purple-dark);
+    margin-bottom: 14px;
+    text-align:center;
+  }
+  .help-card ol{
+    margin: 0 0 18px;
+    padding-left: 22px;
+  }
+  .help-card li{
+    margin-bottom: 12px;
+    font-weight:600;
+    line-height: 1.4;
+  }
+  .help-tip{
+    background: #FFF3D0;
+    border-radius: 14px;
+    padding: 12px 14px;
+    font-weight:700;
+    font-size: 0.92rem;
+    color: #7A5A00;
+    margin-bottom: 18px;
+  }
+  .help-close{
+    display:block;
+    width:100%;
+    background: linear-gradient(145deg, var(--turq), var(--turq-dark));
+    border:none;
+    color:white;
+    font-family:'Baloo 2', sans-serif;
+    font-weight:700;
+    font-size: 1rem;
+    padding: 12px 26px;
+    border-radius: 999px;
+    cursor:pointer;
+    box-shadow: 0 5px 0 rgba(15,167,159,0.4);
+  }
+  .help-close:active{ transform: translateY(4px); box-shadow:none; }
+</style>
+</head>
+<body>
+
+<div id="confetti-layer" aria-hidden="true"></div>
+
+<div class="wrap">
+  <div class="header-row">
+    <h1 class="title"><span>W</span><span>o</span><span>r</span><span>d</span> <span>Builder</span></h1>
+    <button class="help-btn" id="helpBtn" aria-label="How to play">?</button>
+  </div>
+  <p class="subtitle">Tap letters to spell a hidden word</p>
+
+  <div class="card">
+    <div class="main-word" id="mainWord"></div>
+
+    <div class="guess-row">
+      <button class="icon-btn back" id="backBtn" aria-label="Remove last letter">⌫</button>
+      <div class="guess-strip" id="guessStrip">
+        <span class="guess-placeholder">Tap letters below to spell a word</span>
+      </div>
+      <button class="icon-btn submit" id="submitBtn" aria-label="Submit guess">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="12" x2="20" y2="12"></line><polyline points="13 5 20 12 13 19"></polyline></svg>
+      </button>
+    </div>
+
+    <div class="clear-row">
+      <button class="text-btn" id="clearBtn">clear guess</button>
+    </div>
+
+    <div class="message info" id="message" aria-live="polite">&nbsp;</div>
+
+    <div class="section-label">Hidden words</div>
+    <div class="progress" id="progress"></div>
+    <div class="hidden-words" id="hiddenWords"></div>
+
+    <div class="bank-wrap">
+      <div class="section-label">Word bank</div>
+      <div class="bank-chips" id="bankChips"></div>
+    </div>
+  </div>
+
+  <div class="footer-row">
+    <button class="footer-btn new-puzzle-btn" id="newPuzzleBtn">🔀 New puzzle</button>
+    <button class="footer-btn giveup-btn" id="giveupBtn">🏳️ Give up</button>
+  </div>
+</div>
+
+<div class="overlay" id="overlay">
+  <div class="win-card">
+    <div class="win-title">🎉 Congratulations!</div>
+    <div class="win-sub">You found every hidden word.</div>
+    <button class="win-btn" id="playAgainBtn">Play again</button>
+  </div>
+</div>
+
+<div class="overlay" id="helpOverlay">
+  <div class="help-card">
+    <div class="help-title">How to Play</div>
+    <ol>
+      <li>A five-letter word appears at the top of the screen, shown as colorful bubbles.</li>
+      <li>Tap those letters to spell a shorter word, then tap the arrow button to submit your guess.</li>
+      <li>If your guess matches one of the hidden words, its letters appear in the white boxes below.</li>
+      <li>If your guess is a real word but not one of the hidden ones, it's added to your word bank instead.</li>
+      <li>Stuck? Tap the 💡 next to any hidden word for a free letter hint, as many times as you like.</li>
+      <li>Find every hidden word to win!</li>
+    </ol>
+    <div class="help-tip">💡 Tip: letters can be used more than once! For example, if the main word has one "O", you can still spell a word that uses "O" twice.</div>
+    <button class="help-close" id="helpCloseBtn">Got it!</button>
+  </div>
+</div>
+
+<script>
+(function(){
+
+  // ---------- Dictionary ----------
+  // A large bank of common, family-friendly English words (3-6 letters).
+  // Used both to build each puzzle's hidden-word list and to recognize
+  // any other real word the player stumbles on (which goes to the word bank).
+  const GLOBAL_WORDLIST = ["ABLE","ACE","ACHE","ACID","ACRE","AGED","AIR","ALARM","ALBUM","ALIVE","ALL","ALLOW","ALONE","ALONG","ALP","ALSO","ALTER","AMONG","AND","ANGER","ANGLE","ANGRY","ANT","APPLE","APPLY","APT","ARC","ARE","AREA","ARENA","ARGUE","ARISE","ARMY","ARRAY","ART","ASH","ASIDE","ASSET","AVOID","AWAKE","AWARD","AWARE","AWAY","BABY","BACK","BAD","BADLY","BAG","BAKER","BALL","BAND","BANK","BAR","BARE","BARRE","BASE","BASIC","BASIS","BAT","BATH","BEACH","BEAR","BEAT","BED","BEE","BEEN","BEER","BEG","BEGAN","BEGIN","BEING","BELL","BELOW","BELT","BENCH","BEST","BIG","BILL","BIRD","BIRTH","BIT","BITE","BLACK","BLADE","BLAME","BLANK","BLAST","BLIND","BLOCK","BLOOD","BLUE","BOARD","BOAST","BOAT","BODY","BOLD","BOLT","BOND","BONE","BONUS","BOOK","BOOST","BOOT","BOOTH","BORN","BOSS","BOT","BOTH","BOUND","BOW","BOWL","BOX","BOY","BRAIN","BRAND","BRAVE","BREAD","BREAK","BREED","BRICK","BRIEF","BRING","BROAD","BROKE","BROWN","BRUSH","BUILD","BUILT","BULK","BUNCH","BUNK","BURN","BURST","BUSH","BUSY","BUT","BUY","BYE","CABIN","CABLE","CAFE","CAKE","CALL","CALM","CAME","CAMP","CAN","CANDY","CANE","CAP","CAR","CARD","CARE","CARGO","CARRY","CARVE","CASE","CASH","CAST","CAT","CATCH","CAUSE","CAVE","CELL","CHAIN","CHAIR","CHALK","CHAOS","CHARM","CHART","CHASE","CHAT","CHEAP","CHEEK","CHEST","CHIEF","CHILD","CHILL","CHIN","CHOSE","CITY","CIVIL","CLAIM","CLASS","CLAY","CLEAN","CLEAR","CLICK","CLIFF","CLIMB","CLIP","CLOCK","CLOSE","CLOTH","CLOUD","CLUB","COACH","COAL","COAST","COAT","COD","CODE","COIN","COLD","COME","COOK","COOL","COPE","COPY","CORD","CORE","CORN","COST","COULD","COUNT","COURT","COVER","COW","CRACK","CRAFT","CRASH","CRAZY","CREAM","CREW","CRIME","CROP","CROSS","CROWD","CROWN","CRUEL","CRUSH","CUP","CURE","CURVE","CUT","CYCLE","DAD","DAILY","DANCE","DARK","DART","DATA","DATE","DAWN","DAY","DAYS","DEAL","DEAR","DEBT","DEEP","DEER","DELAY","DENSE","DEPTH","DESK","DIAL","DICE","DID","DIED","DIET","DIG","DIM","DIME","DIP","DIRE","DIRT","DIRTY","DISC","DISH","DOC","DOCK","DOES","DOG","DONE","DOOR","DOSE","DOT","DOUBT","DOWN","DOZEN","DRAFT","DRAG","DRAIN","DRAMA","DRANK","DRAW","DREAM","DRESS","DREW","DRIED","DRIFT","DRINK","DRIP","DRIVE","DROP","DROVE","DRUG","DRUM","DUAL","DUCK","DUE","DUG","DULL","DUO","DUSK","DUST","DUTY","DYING","EACH","EAGER","EAR","EARLY","EARN","EARTH","EASE","EAST","EASY","EAT","EDGE","EGG","EIGHT","ELECT","ELSE","EMPTY","END","ENEMY","ENJOY","ENTER","ENTRY","EON","EPIC","EQUAL","ERA","ERAS","ERROR","EVEN","EVENT","EVER","EVERY","EVIL","EXACT","EXAM","EXIST","EXIT","EXTRA","EYE","FACE","FACT","FADE","FAIL","FAIR","FAITH","FALL","FALSE","FAME","FAN","FANCY","FAR","FARM","FAST","FAT","FATAL","FATE","FAULT","FEAR","FED","FEED","FEEL","FEET","FELL","FELT","FEW","FIBER","FIELD","FIFTH","FIG","FIGHT","FILE","FILL","FILM","FIN","FINAL","FIND","FINE","FIRE","FIRM","FIRST","FISH","FIST","FIT","FIVE","FIX","FIXED","FLAG","FLAME","FLASH","FLAT","FLEE","FLEET","FLESH","FLEW","FLOAT","FLOOD","FLOOR","FLOW","FLUID","FLY","FOCUS","FOG","FOOD","FOOT","FOR","FORCE","FORD","FORM","FORT","FORTH","FORUM","FOUL","FOUND","FOUR","FRAME","FRANK","FRAUD","FREE","FRESH","FROG","FROM","FRONT","FROST","FRUIT","FUEL","FULL","FULLY","FUN","FUND","FUNNY","GAIN","GAME","GAP","GAS","GATE","GAVE","GEAR","GEM","GENE","GET","GHOST","GIANT","GIFT","GIRL","GIVE","GIVEN","GLAD","GLASS","GLOBE","GLORY","GLOVE","GLOW","GOAL","GOAT","GOING","GOLD","GOLF","GONE","GOOD","GOT","GRAB","GRACE","GRADE","GRAIN","GRAND","GRANT","GRAPE","GRASP","GRASS","GRAVE","GRAY","GREAT","GREEN","GREET","GREW","GRID","GRIEF","GRILL","GRIN","GRIND","GRIP","GROSS","GROUP","GROW","GROWN","GUARD","GUESS","GUEST","GUIDE","GULF","GUM","GUN","GUY","HAD","HAIR","HALF","HALL","HAM","HAND","HANG","HAPPY","HARD","HARE","HARM","HARSH","HAS","HASTE","HAT","HATE","HAVE","HAVEN","HAY","HEAD","HEAL","HEAR","HEART","HEAT","HEAVY","HEDGE","HELD","HELP","HEN","HER","HERB","HERE","HERO","HERS","HID","HIDE","HIGH","HILL","HIM","HINT","HIP","HIRE","HIS","HIT","HOG","HOLD","HOLE","HOLY","HOME","HONEY","HONOR","HOOK","HOP","HOPE","HORN","HORSE","HOST","HOT","HOTEL","HOUR","HOUSE","HOW","HUB","HUG","HUGE","HULL","HUMAN","HUMOR","HUNT","HURRY","HURT","HUT","ICE","ICON","IDEA","IDEAL","IDOL","ILL","IMAGE","IMPLY","INBOX","INCH","INDEX","INK","INNER","INPUT","INTO","ION","IRE","IRON","ISLE","ISSUE","ITEM","ITS","IVORY","IVY","JAIL","JAM","JAR","JAW","JAZZ","JET","JOB","JOG","JOIN","JOINT","JOKE","JOLLY","JOY","JUDGE","JUICE","JUMP","JUMPY","JUNE","JURY","JUST","KEEN","KEEP","KEPT","KICK","KID","KIN","KIND","KING","KISS","KIT","KNEE","KNEW","KNIFE","KNOCK","KNOT","KNOW","KNOWN","LAB","LABEL","LABOR","LACE","LACK","LAD","LADY","LAG","LAKE","LAMB","LAMP","LAND","LANE","LAP","LARGE","LASER","LAST","LATE","LATER","LAUGH","LAW","LAY","LAYER","LEAD","LEAF","LEAN","LEARN","LEAST","LEAVE","LEFT","LEG","LEGAL","LEIS","LEMON","LEND","LENS","LESS","LET","LEVEL","LEVER","LID","LIE","LIED","LIFE","LIFT","LIGHT","LIKE","LIME","LIMIT","LINE","LINEN","LINK","LION","LIP","LIST","LIT","LIVE","LIVER","LOAD","LOAN","LOCAL","LOCK","LOFT","LOG","LOGIC","LOGO","LONE","LONG","LOOK","LOOP","LOOSE","LORD","LOSE","LOSS","LOST","LOT","LOTS","LOUD","LOVE","LOW","LOWER","LOYAL","LUCK","LUCKY","LUNCH","LUNG","LURE","LUSH","LYING","MAD","MAGIC","MAIL","MAIN","MAJOR","MAKE","MAKER","MALE","MALL","MAN","MANGO","MANY","MAP","MARCH","MARK","MASK","MASS","MAT","MATCH","MATE","MAYOR","MEAL","MEAN","MEAT","MEDAL","MEDIA","MEET","MELT","MENU","MERCY","MERE","MERGE","MERIT","MERRY","MESH","MESS","METAL","METER","MICE","MIDST","MIGHT","MILD","MILE","MILK","MILL","MIND","MINE","MINOR","MINT","MINUS","MISS","MIST","MIX","MOB","MODE","MODEL","MODEM","MOM","MONEY","MONTH","MOOD","MOON","MOP","MORAL","MORE","MOSS","MOST","MOTOR","MOUNT","MOUSE","MOUTH","MOVE","MOVIE","MUCH","MUD","MUG","MUSIC","MUST","MYTH","NAG","NAIL","NAKED","NAME","NAN","NAP","NARC","NASTY","NAVAL","NEAR","NEAT","NECK","NEED","NEEDY","NERVE","NEST","NET","NEVER","NEW","NEWLY","NEWS","NEXT","NICE","NIGHT","NINE","NIT","NOBLE","NOD","NOISE","NONE","NORTH","NOSE","NOT","NOTE","NOTED","NOVEL","NOW","NURSE","NUT","OAK","OAR","OCCUR","OCEAN","ODD","OFF","OFFER","OFTEN","OIL","OLD","ONCE","ONE","ONLY","ONSET","ONTO","OPEN","ORAL","ORB","ORDER","ORGAN","OTHER","OUGHT","OUR","OUT","OUTER","OVAL","OVEN","OVER","OWE","OWL","OWN","OWNER","OXIDE","PACE","PACK","PAD","PAGE","PAID","PAIN","PAINT","PAIR","PAL","PALE","PALM","PAN","PANEL","PANIC","PANT","PAPER","PARK","PART","PARTY","PAST","PASTE","PAT","PATCH","PATH","PAUSE","PAW","PAY","PEA","PEACE","PEAK","PEAR","PEARL","PEEL","PEER","PEN","PET","PHASE","PHONE","PHOTO","PIANO","PICK","PIE","PIECE","PIER","PIG","PILE","PILL","PILOT","PIN","PINE","PINK","PIPE","PIT","PITCH","PIZZA","PLACE","PLAIN","PLAN","PLANE","PLANT","PLATE","PLAY","PLAZA","PLOT","PLUG","PLUS","POD","POINT","POLE","POND","POOL","POOR","POP","PORE","PORT","POSE","POST","POT","POUND","POWER","PRESS","PRICE","PRIDE","PRIME","PRINT","PRIOR","PRIZE","PROOF","PROUD","PROVE","PUB","PUG","PULL","PULP","PULSE","PUMP","PUNCH","PUNK","PUPIL","PUPPY","PURE","PUSH","PUT","QUEEN","QUERY","QUEST","QUICK","QUIET","QUIT","QUITE","QUOTE","RACE","RADIO","RAG","RAGE","RAID","RAIL","RAIN","RAISE","RALLY","RAM","RAN","RANCH","RANGE","RANK","RAPID","RARE","RASH","RAT","RATE","RATIO","RAVE","RAW","REACH","READ","READY","REAL","REALM","REAR","REBEL","REFER","RELAX","RELY","RENT","REPLY","REST","RIB","RICE","RICH","RID","RIDE","RIDER","RIDGE","RIFLE","RIG","RIGHT","RIGID","RIM","RING","RIP","RIPE","RISE","RISK","RISKY","RIVAL","RIVER","ROAD","ROAM","ROAR","ROAST","ROB","ROBE","ROBOT","ROCK","ROCKY","ROD","RODE","ROLE","ROLL","ROOF","ROOM","ROOT","ROPE","ROSE","ROT","ROUGH","ROUND","ROUTE","ROW","ROYAL","RUB","RUDE","RUG","RUIN","RULE","RUN","RURAL","RUSH","RUST","RUT","SAD","SAFE","SAG","SAID","SAIL","SALAD","SALE","SALES","SALON","SALT","SAME","SAND","SAP","SAT","SAUCE","SAVE","SAW","SAY","SCALE","SCARE","SCARF","SCENE","SCOPE","SCORE","SCOUT","SEA","SEAL","SEAR","SEAT","SEE","SEED","SEEK","SEEM","SEEN","SELF","SELL","SEMI","SEND","SENSE","SENT","SERVE","SET","SETUP","SEVEN","SHADE","SHAKE","SHALL","SHAME","SHAPE","SHARE","SHARK","SHARP","SHE","SHEEP","SHEET","SHELF","SHELL","SHIFT","SHINE","SHIP","SHIRT","SHOCK","SHOE","SHONE","SHOP","SHORE","SHORT","SHOT","SHOUT","SHOW","SHUT","SICK","SIDE","SIGHT","SIGN","SILK","SILLY","SIN","SINCE","SING","SINK","SIP","SIR","SIT","SITE","SIX","SIXTH","SIXTY","SIZE","SIZED","SKATE","SKI","SKILL","SKIN","SKIP","SKIRT","SKULL","SKY","SLAP","SLATE","SLED","SLEEP","SLICE","SLIDE","SLIM","SLIP","SLOPE","SLOT","SLOW","SLY","SMALL","SMART","SMELL","SMILE","SMOKE","SNAKE","SNAP","SNOW","SOAP","SOB","SOCK","SOD","SOFA","SOFT","SOIL","SOLAR","SOLD","SOLE","SOLID","SOLVE","SOME","SON","SONG","SOON","SORRY","SORT","SOUL","SOUND","SOUP","SOUR","SOUTH","SOW","SOY","SPA","SPACE","SPAN","SPARE","SPARK","SPEAK","SPEED","SPELL","SPEND","SPENT","SPICE","SPIN","SPINE","SPLIT","SPOIL","SPOKE","SPOON","SPORT","SPOT","SPRAY","SPY","STACK","STAFF","STAGE","STAIR","STAKE","STALE","STALL","STAMP","STAND","STAR","STARE","START","STATE","STAY","STEAK","STEAL","STEAM","STEEL","STEEP","STEER","STEM","STEP","STICK","STIFF","STILL","STING","STIR","STOCK","STONE","STOOD","STOP","STORE","STORK","STORM","STORY","STOVE","STRAY","STRIP","STUCK","STUDY","STUFF","STYLE","SUCH","SUGAR","SUIT","SUITE","SUN","SUNNY","SUPER","SURE","SWEAR","SWEAT","SWEEP","SWEET","SWIFT","SWIM","SWING","SWORD","TAB","TABLE","TAG","TAKE","TAKEN","TALE","TALK","TALL","TAN","TANK","TAP","TAPE","TAR","TART","TASK","TASTE","TAT","TAX","TEA","TEACH","TEAM","TEAR","TECH","TELL","TEN","TEND","TENT","TERM","TEST","TEXT","THAN","THANK","THAT","THE","THEFT","THEM","THEME","THEN","THERE","THESE","THICK","THIEF","THIN","THING","THINK","THIRD","THIS","THOSE","THREE","THREW","THROW","THUMB","TIDE","TIDY","TIE","TIGER","TIGHT","TILE","TIME","TIMER","TIN","TINY","TIP","TIRE","TIRED","TITLE","TOAD","TOAST","TODAY","TOE","TOLD","TOLL","TON","TONE","TOO","TOOK","TOOL","TOOT","TOP","TORT","TOTAL","TOTE","TOUCH","TOUGH","TOUR","TOWEL","TOWER","TOWN","TOXIC","TOY","TRACE","TRACK","TRADE","TRAIL","TRAIN","TRAIT","TRAP","TRASH","TREAT","TREE","TREND","TRIAL","TRIBE","TRICK","TRIED","TRIM","TRIO","TRIP","TRUCK","TRUE","TRULY","TRUNK","TRUST","TRUTH","TRY","TUB","TUBE","TUG","TUNE","TURN","TWICE","TWIN","TWO","TYPE","UGLY","ULTRA","UNCLE","UNDER","UNDUE","UNION","UNIT","UNITE","UNITY","UNTIL","UPON","UPPER","UPSET","URBAN","URGE","USAGE","USE","USED","USER","USUAL","VAGUE","VAIN","VALID","VALUE","VAN","VAPOR","VAST","VAT","VERB","VERY","VEST","VET","VIA","VIDEO","VIEW","VIRUS","VISIT","VITAL","VOCAL","VOICE","VOID","VOTE","VOTER","WAG","WAGE","WAGON","WAIT","WAKE","WALK","WALL","WANT","WAR","WARD","WARM","WARN","WAS","WASH","WASTE","WATCH","WATER","WAVE","WAX","WAY","WAYS","WEAK","WEAR","WEB","WED","WEED","WEEK","WEIGH","WEIRD","WELL","WENT","WERE","WEST","WET","WHALE","WHAT","WHEAT","WHEEL","WHEN","WHERE","WHICH","WHILE","WHITE","WHO","WHOLE","WHOM","WHOSE","WIDE","WIFE","WIG","WILD","WILL","WIN","WIND","WINE","WING","WIRE","WISE","WISH","WIT","WITH","WOKE","WOLF","WOMAN","WOMEN","WON","WOOD","WOODS","WOOL","WORD","WORE","WORK","WORLD","WORN","WORRY","WORSE","WORST","WORTH","WOULD","WOUND","WRAP","WRIST","WRITE","WRONG","YARD","YEAR","YES","YET","YOU","YOUNG","YOUR","YOUTH","ZERO","ZIP","ZONE","ZOO"];
+
+  // ---------- Main words ----------
+  // One of these 5-letter words is picked at random each time the game loads.
+  const MAIN_WORDS = [
+    "PLANT","CRANE","STORM","BRAVE","STONE","TRAIN","SMILE","CLOUD","PRIDE","SHARE",
+    "PASTE","MOUSE","WATER","EARTH","RATES","HEART","GRATE","GRAND","LIGHT","NIGHT",
+    "WORLD","MONEY","PAPER","TABLE","CHAIR","BREAD","SUGAR","LEMON","GRAPE","APPLE",
+    "MANGO","TIGER","HORSE","SNAKE","TONES","FROST","STORY","STAGE","STAMP","STEAM",
+    "STEEL","SPACE","SPARE","SHINE","SHORE","LATER","SHELF","SHIRT","SKATE","SLATE",
+    "SOLAR","SOUND","SOUTH","REACT","SPRAY","STORK","TRADE","TRACK","STEAL","STARE"
+  ];
+
+  const MAX_HIDDEN = 14; // cap on how many hidden target words a puzzle shows
+
+  let puzzleWord = "";
+  let letterSet = null;
+  let hiddenWords = [];   // official target words for this puzzle
+  let matchWords = [];    // every dictionary word this puzzle's letters can spell
+  let currentGuess = [];
+  let foundHidden = new Set();
+  let foundBonus = new Set();
+  let hintReveals = new Map(); // word -> Set of revealed index positions
+  let gaveUp = false;
+  let lastMainWord = null;
+
+  const mainWordEl = document.getElementById('mainWord');
+  const guessStripEl = document.getElementById('guessStrip');
+  const hiddenWordsEl = document.getElementById('hiddenWords');
+  const progressEl = document.getElementById('progress');
+  const bankChipsEl = document.getElementById('bankChips');
+  const messageEl = document.getElementById('message');
+  const overlayEl = document.getElementById('overlay');
+  const confettiLayer = document.getElementById('confetti-layer');
+  const giveupBtn = document.getElementById('giveupBtn');
+  const helpOverlay = document.getElementById('helpOverlay');
+
+  function shuffle(arr){
+    const a = arr.slice();
+    for(let i = a.length - 1; i > 0; i--){
+      const j = Math.floor(Math.random() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  }
+
+  function pickMainWord(){
+    if(MAIN_WORDS.length === 1) return MAIN_WORDS[0];
+    let word;
+    do{
+      word = MAIN_WORDS[Math.floor(Math.random() * MAIN_WORDS.length)];
+    } while(word === lastMainWord);
+    return word;
+  }
+
+  function computeMatches(word){
+    const letters = new Set(word.split(''));
+    return GLOBAL_WORDLIST.filter(w => {
+      if(w === word) return false;
+      if(w.length < 3 || w.length > 6) return false;
+      return [...w].every(ch => letters.has(ch));
+    });
+  }
+
+  function loadPuzzle(){
+    puzzleWord = pickMainWord();
+    lastMainWord = puzzleWord;
+    letterSet = new Set(puzzleWord.split(''));
+
+    matchWords = computeMatches(puzzleWord);
+    const sortedMatches = [...matchWords].sort((a,b) => a.length - b.length || a.localeCompare(b));
+
+    if(sortedMatches.length <= MAX_HIDDEN){
+      hiddenWords = sortedMatches;
+    } else {
+      hiddenWords = shuffle(sortedMatches).slice(0, MAX_HIDDEN);
+    }
+
+    currentGuess = [];
+    foundHidden = new Set();
+    foundBonus = new Set();
+    hintReveals = new Map();
+    gaveUp = false;
+    overlayEl.classList.remove('show');
+    giveupBtn.hidden = false;
+    setMessage('', 'info');
+    renderMainWord();
+    renderGuess();
+    renderHiddenWords();
+    renderBank();
+    renderProgress();
+  }
+
+  function renderMainWord(){
+    mainWordEl.innerHTML = '';
+    puzzleWord.split('').forEach((ch, i) => {
+      const btn = document.createElement('button');
+      btn.className = 'letter-btn c' + (i % 5);
+      btn.textContent = ch;
+      btn.setAttribute('aria-label', 'Add letter ' + ch);
+      btn.addEventListener('click', () => onLetterTap(ch, btn));
+      mainWordEl.appendChild(btn);
+    });
+  }
+
+  function onLetterTap(ch, btn){
+    currentGuess.push(ch);
+    renderGuess();
+    btn.classList.remove('tapped');
+    void btn.offsetWidth;
+    btn.classList.add('tapped');
+  }
+
+  function renderGuess(){
+    guessStripEl.innerHTML = '';
+    guessStripEl.classList.remove('shake');
+    if(currentGuess.length === 0){
+      const span = document.createElement('span');
+      span.className = 'guess-placeholder';
+      span.textContent = 'Tap letters below to spell a word';
+      guessStripEl.appendChild(span);
+      return;
+    }
+    currentGuess.forEach((ch, i) => {
+      const b = document.createElement('button');
+      b.className = 'guess-letter';
+      b.textContent = ch;
+      b.setAttribute('aria-label', 'Remove letter ' + ch + ' from guess');
+      b.addEventListener('click', () => {
+        currentGuess.splice(i, 1);
+        renderGuess();
+      });
+      guessStripEl.appendChild(b);
+    });
+  }
+
+  function renderHiddenWords(){
+    hiddenWordsEl.innerHTML = '';
+    const sorted = [...hiddenWords].sort((a,b) => a.length - b.length || a.localeCompare(b));
+    const allFound = foundHidden.size === hiddenWords.length;
+
+    sorted.forEach(word => {
+      const row = document.createElement('div');
+      row.className = 'hw-row';
+
+      const boxesWrap = document.createElement('div');
+      boxesWrap.className = 'hw-boxes';
+
+      const isFound = foundHidden.has(word);
+      const isGivenUp = gaveUp && !isFound;
+      const revealed = hintReveals.get(word) || new Set();
+
+      word.split('').forEach((ch, i) => {
+        const box = document.createElement('div');
+        let cls = 'hw-box';
+        let shown = '';
+        if(isFound){ cls += ' filled'; shown = ch; }
+        else if(isGivenUp){ cls += ' given-up'; shown = ch; }
+        else if(revealed.has(i)){ cls += ' hint'; shown = ch; }
+        box.className = cls;
+        box.textContent = shown;
+        boxesWrap.appendChild(box);
+      });
+
+      row.appendChild(boxesWrap);
+
+      if(!isFound && !isGivenUp){
+        const fullyHinted = revealed.size >= word.length;
+        if(!fullyHinted){
+          const hintBtn = document.createElement('button');
+          hintBtn.className = 'hint-btn';
+          hintBtn.textContent = '💡';
+          hintBtn.setAttribute('aria-label', 'Get a hint letter');
+          hintBtn.addEventListener('click', () => giveHint(word));
+          row.appendChild(hintBtn);
+        }
+      }
+
+      hiddenWordsEl.appendChild(row);
+    });
+
+    giveupBtn.hidden = allFound || gaveUp;
+  }
+
+  function giveHint(word){
+    let set = hintReveals.get(word) || new Set();
+    const remaining = [];
+    for(let i = 0; i < word.length; i++){
+      if(!set.has(i)) remaining.push(i);
+    }
+    if(remaining.length === 0) return;
+    const idx = remaining[Math.floor(Math.random() * remaining.length)];
+    set.add(idx);
+    hintReveals.set(word, set);
+    renderHiddenWords();
+  }
+
+  function renderBank(){
+    bankChipsEl.innerHTML = '';
+    if(foundBonus.size === 0){
+      const p = document.createElement('div');
+      p.className = 'bank-empty';
+      p.textContent = 'Real words you find that aren\u2019t on the list above will show up here.';
+      bankChipsEl.appendChild(p);
+      return;
+    }
+    [...foundBonus].forEach(word => {
+      const chip = document.createElement('div');
+      chip.className = 'chip';
+      chip.textContent = word;
+      bankChipsEl.appendChild(chip);
+    });
+  }
+
+  function renderProgress(){
+    progressEl.textContent = foundHidden.size + ' of ' + hiddenWords.length + ' found';
+  }
+
+  function setMessage(text, kind){
+    messageEl.textContent = text || '\u00A0';
+    messageEl.className = 'message ' + (kind || 'info');
+  }
+
+  // Tries a free public dictionary for words we don't already know about.
+  // If the artifact sandbox blocks the network call, this just fails
+  // quietly and the game falls back to the built-in word list.
+  async function checkOnlineDictionary(word){
+    try{
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 3000);
+      const res = await fetch('https://api.dictionaryapi.dev/api/v2/entries/en/' + encodeURIComponent(word.toLowerCase()), {
+        signal: controller.signal
+      });
+      clearTimeout(timeout);
+      return res.ok;
+    } catch(err){
+      return null; // null = couldn't check (blocked/offline), not "invalid"
+    }
+  }
+
+  let checking = false;
+
+  async function submitGuess(){
+    if(checking) return;
+    const guess = currentGuess.join('');
+    if(guess.length < 3){
+      if(guess.length > 0){
+        setMessage('Words need at least 3 letters', 'bad');
+        shakeStrip();
+      }
+      return;
+    }
+
+    const usesOnlyAllowedLetters = guess.split('').every(ch => letterSet.has(ch));
+    if(!usesOnlyAllowedLetters){
+      setMessage('Only use letters from ' + puzzleWord, 'bad');
+      shakeStrip();
+      return;
+    }
+
+    if(foundHidden.has(guess)){
+      setMessage('Already found ' + guess + '!', 'info');
+      shakeStrip();
+      return;
+    }
+    if(foundBonus.has(guess)){
+      setMessage(guess + ' is already in your word bank', 'info');
+      shakeStrip();
+      return;
+    }
+
+    if(hiddenWords.includes(guess)){
+      foundHidden.add(guess);
+      currentGuess = [];
+      renderGuess();
+      renderHiddenWords();
+      renderProgress();
+      setMessage('Nice! ' + guess + ' found', 'good');
+      if(foundHidden.size === hiddenWords.length){
+        setTimeout(winGame, 350);
+      }
+      return;
+    }
+
+    if(matchWords.includes(guess)){
+      foundBonus.add(guess);
+      currentGuess = [];
+      renderGuess();
+      renderBank();
+      setMessage(guess + ' is a real word! Added to your word bank', 'good');
+      return;
+    }
+
+    // Not in our built-in list — ask a real online dictionary before giving up.
+    checking = true;
+    setMessage('Checking the dictionary\u2026', 'info');
+    const isRealWord = await checkOnlineDictionary(guess);
+    checking = false;
+
+    if(isRealWord === true){
+      foundBonus.add(guess);
+      currentGuess = [];
+      renderGuess();
+      renderBank();
+      setMessage(guess + ' is a real word! Added to your word bank', 'good');
+      return;
+    }
+
+    setMessage('Not one of the words in this puzzle', 'bad');
+    shakeStrip();
+  }
+
+  function shakeStrip(){
+    guessStripEl.classList.remove('shake');
+    void guessStripEl.offsetWidth;
+    guessStripEl.classList.add('shake');
+  }
+
+  function winGame(){
+    overlayEl.classList.add('show');
+    launchConfetti();
+  }
+
+  function launchConfetti(){
+    const colors = ['#FF6FA0','#20C9C0','#FFC53D','#9B7FE8','#FF8A66'];
+    const count = 120;
+    for(let i=0;i<count;i++){
+      const piece = document.createElement('div');
+      piece.className = 'confetti-piece';
+      const size = 6 + Math.random()*8;
+      piece.style.width = size + 'px';
+      piece.style.height = (size*0.4 + 4) + 'px';
+      piece.style.left = Math.random()*100 + 'vw';
+      piece.style.background = colors[Math.floor(Math.random()*colors.length)];
+      piece.style.animationDuration = (2.2 + Math.random()*2.2) + 's';
+      piece.style.animationDelay = (Math.random()*0.6) + 's';
+      confettiLayer.appendChild(piece);
+      setTimeout(() => piece.remove(), 6000);
+    }
+  }
+
+  function giveUp(){
+    gaveUp = true;
+    currentGuess = [];
+    renderGuess();
+    renderHiddenWords();
+    setMessage('Here are the rest of the words \u2014 try a new puzzle whenever you like', 'info');
+  }
+
+  document.getElementById('submitBtn').addEventListener('click', submitGuess);
+  document.getElementById('backBtn').addEventListener('click', () => {
+    currentGuess.pop();
+    renderGuess();
+  });
+  document.getElementById('clearBtn').addEventListener('click', () => {
+    currentGuess = [];
+    renderGuess();
+    setMessage('', 'info');
+  });
+  document.getElementById('newPuzzleBtn').addEventListener('click', loadPuzzle);
+  document.getElementById('playAgainBtn').addEventListener('click', loadPuzzle);
+  giveupBtn.addEventListener('click', giveUp);
+  document.getElementById('helpBtn').addEventListener('click', () => {
+    helpOverlay.classList.add('show');
+  });
+  document.getElementById('helpCloseBtn').addEventListener('click', () => {
+    helpOverlay.classList.remove('show');
+  });
+
+  window.addEventListener('keydown', (e) => {
+    if(overlayEl.classList.contains('show')) return;
+    if(helpOverlay.classList.contains('show')) return;
+    const key = e.key.toUpperCase();
+    if(key === 'BACKSPACE'){ currentGuess.pop(); renderGuess(); return; }
+    if(key === 'ENTER'){ submitGuess(); return; }
+    if(key.length === 1 && letterSet && letterSet.has(key)){
+      currentGuess.push(key);
+      renderGuess();
+    }
+  });
+
+  loadPuzzle();
+})();
+</script>
+
+</body>
+</html>
