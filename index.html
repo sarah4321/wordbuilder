@@ -598,7 +598,7 @@
     <div class="help-title">How to Play</div>
     <ol>
       <li>A five-letter word appears at the top of the screen, shown as colorful bubbles.</li>
-      <li>Tap those letters to spell a shorter word, then tap the arrow button to submit your guess.</li>
+      <li>Click those letters to create other words, then click the arrow button to submit your guess.</li>
       <li>If your guess matches one of the hidden words, its letters appear in the white boxes below.</li>
       <li>If your guess is a real word but not one of the hidden ones, it's added to your word bank instead.</li>
       <li>Stuck? Tap the 💡 next to any hidden word for a free letter hint, as many times as you like.</li>
@@ -735,7 +735,7 @@
     if(currentGuess.length === 0){
       const span = document.createElement('span');
       span.className = 'guess-placeholder';
-      span.textContent = 'Tap letters below to spell a word';
+      span.textContent = 'Find the hidden words to win! Click letters in the word below to create other words and uncover all the hidden words. Hint! Letters can be used more than once!';
       guessStripEl.appendChild(span);
       return;
     }
